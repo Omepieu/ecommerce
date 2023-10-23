@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Ogani Template">
+    <meta name="keywords" content="Ogani, unica, creative, html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Ogani | Template</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+        integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="{% static  'css/elegant-icons.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static  'css/nice-select.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static  'css/jquery-ui.min.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static  'css/owl.carousel.min.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static  'css/slicknav.min.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static  'css/style.css' %}" type="text/css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <style>
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            /* Change the background color as needed */
+            z-index: 1000;
+            /* Adjust the z-index to make sure it's above other elements */
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            /* Optional shadow for the header */
+        }
+
+        .marge {
+            margin-top: 105px !important;
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- Page Preloder -->
+    <div id="preloder">
+        <div class="loader"></div>
+    </div>
+    <!-- Header Section Begin -->
+    {% include 'base/navbar.html' %}
+    <!-- Header Section End -->
+    <main class="marge">
+        {% block content %}
+
+        {% endblock content %}
+    </main>
+
+    <!-- Footer Section Begin -->
+    {% include "base/footer.html" %}
+    <!-- Footer Section End -->
+    <!-- Js Plugins -->
+    <script type="text/javascript">
+        console.log("Welcome to my shop");
+
+        // Initialize the 'panier' object from local storage or create a new empty object
+        var panier;
+        if (localStorage.getItem("panier") === null) {
+            panier = {};
+        } else {
+            panier = JSON.parse(localStorage.getItem("panier"));
+        }
+        // Add an event listener for clicks on elements with the class 'shop'
+        $(document).on('click', '.shop', function () {
+            console.log("Clicked");
+            var item = this.id.toString();
+            if (panier[item] !== undefined) {
+                quantity = panier[item][0] + 1
+                panier[item][0] = quantity;
+                panier[item][2] = parseFloat(document.getElementById("prix" + item).innerText); 
+            } else {
+                quantity = 1;
+                name = document.getElementById("produit" + item).innerText;
+                prix = parseFloat(document.getElementById("prix" + item).innerText);
+                panier[item] = [quantity, name, prix]; //
+            }
+            localStorage.setItem('panier', JSON.stringify(panier));
+            $("#message").text("Produit ajouté au panier avec succès");
+            $('#message').fadeIn().delay(2000).fadeOut(); // Afficher pendant 4 secondes
+            console.log(panier);
+            document.getElementById("panier").innerHTML = Object.keys(panier).length;
+        });
+        // Call the function to list products in the cart
+        ListproduitPanier(panier);
+
+        function ListproduitPanier(panier) {
+            var dataPanier = '';
+            // dataPanier += '<p class="text-center">Panier shopping, romain</p>';
+            index = 1
+            // Use for...in loop to iterate through the keys of the 'panier' object
+            for (var key in panier) {
+                if (panier.hasOwnProperty(key)) {
+                    dataPanier += index + '-';
+                    dataPanier += document.getElementById("produit" + key).innerText + ", quantité = " + panier[key][0] + "<br>";
+                    index++;
+                }
+            }
+            dataPanier += '<a href="{% url "card" %}" class="btn btn-primary text-center fw-bold col-12">voir panier</a>';
+
+            // Add the dataPanier content to the popover
+            $('#card').attr('data-bs-content', '<p>' + dataPanier + '</p>');
+            // Initialize Bootstrap popovers
+            // $('[data-bs-toggle="popover"]').popover();
+            $(function () {
+                $('[data-bs-toggle="popover"]').popover();
+            });
+            document.getElementById('card').setAttribute('title', '<h3 class="text-center">My shopping</h3>');
+        }
+    </script>
+    <script type="text/javascript">
+        var panier;
+        if (localStorage.getItem('panier') === null) {
+            panier = {};
+        }
+        else {
+            panier = JSON.parse(localStorage.getItem('panier'));
+        }
+
+        for (item_id in panier) {
+            let prix = panier[item_id][2];
+            let name = panier[item_id][1];
+            let quantity = panier[item_id][0];
+            let prixtotal = prix*quantity;
+            let itemString =  `<tr margin="10px">
+                <td class="shoping__cart__item">
+                    <img src="{% static 'img/cart/cart-3.jpg' %}" alt="" width="40px" height="40px">
+                    <h5>${name}</h5>
+                </td>
+                <td class="shoping__cart__price" width="300px">
+                    ${prix}
+                </td>
+                <td class="shoping__cart__quantity">
+                    <div class="quantity">
+                        <div class="pro-qty">
+                            <input type="text" value="${quantity}">
+                        </div>
+                    </div>
+                </td>
+                <td class="shoping__cart__total">
+                    <span >${prixtotal}</span>FCfa
+                </td>
+                <td class="shoping__cart__item__close">
+                    <span class="icon_close"></span>
+                </td>
+            </tr>`;
+            $('#itemlist').append(itemString);
+        }
+
+        var sommes = 0;
+        var qtotal = 0;
+        for (item_id in panier) {
+            let prix = panier[item_id][2]
+            let name = panier[item_id][1]
+            let quantity = panier[item_id][0]
+            let prixT = prix*quantity
+            sommes += prixT;
+            qtotal += quantity
+            let itemProduit = `
+            <li>${name} <span>${prixT}</span></li>
+            ` 
+            $('#commande').append(itemProduit);
+        }
+        let itemSommes = `
+            <li>Subtotal <span>${sommes} FCfa</span></li>
+            <li>Total <span >${sommes} FCfa</span></li>
+        `;
+        let sommeCaisse = `
+            <div class="checkout__order__subtotal">Subtotal <span>${sommes} FCfa</span></div>
+            <div class="checkout__order__total">Total <span>${sommes} FCfa</span></div>
+        `;
+        let itemNombre =  `<tr margin="10px">
+                <td class="shoping__cart__item">
+                    <h5></h5>
+                </td>
+                <td class="shoping__cart__price" width="300px">
+                   OUI
+                </td>
+                <td class="shoping__cart__quantity">
+                    <div class="quantity">
+                            <h4>${qtotal}</h4>
+                    </div>
+                </td>
+                <td class="shoping__cart__total">
+                    <span >${sommes}</span>FCfa
+                </td>
+                <td class="shoping__cart__item__close">
+                    <span class="icon_close"></span>
+                </td>
+            </tr>`;
+        $('#items').val(JSON.stringify(panier));
+        $('#sommes').append(sommes);
+        $('#toto').append(itemSommes);
+        $('#sommeTotal').val(sommes + " FCFA");
+        $('#totolBruite').append(itemNombre);
+        $('#sommeCaisse').append(sommeCaisse);
+
+        
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="{% static  'js/jquery.nice-select.min.js' %}"></script>
+    <script src="{% static  'js/jquery-ui.min.js' %}"></script>
+    <script src="{% static  'js/jquery.slicknav.js' %}"></script>
+    <script src="{% static  'js/mixitup.min.js' %}"></script>
+    <script src="{% static  'js/owl.carousel.min.js' %}"></script>
+    <script src="{% static  'js/main.js' %}"></script>
+
+
+
+</body>
+
+</html>
