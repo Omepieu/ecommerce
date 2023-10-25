@@ -15,7 +15,14 @@ def home_page_view(request, category=None):
     if recherche != '' and recherche is not None :
         produits = Produit.objects.filter(libelle__icontains=recherche)
         categories = SousCategorie.objects.filter(libelle__icontains=recherche)
-    context =  {'produits': produits, 'categories': categories, 'category': category}
+
+    blogs  = Blog.objects.all()[:3]
+    context =  {
+        'produits': produits, 
+        'categories': categories, 
+        'category': category, 
+        'blogs':blogs
+    }
     return render(request, "base/hompage.html", context)
 
 def shop_page_view(request, category=None):
@@ -30,7 +37,6 @@ def shop_page_view(request, category=None):
         categories = SousCategorie.objects.filter(libelle__icontains=recherche)
     #pagination 
     paginer = Paginator(produits, 2)
-    print(paginer.num_pages)
     page_number = request.GET.get("page")
     produits = paginer.get_page(page_number)
     context =  {'produits': produits, 'categories': categories, 'category': category}
@@ -75,18 +81,34 @@ def checkout_view(request):
 def blog_view(request, category=None):
     blogs  = Blog.objects.all()
     categories = Categorie.objects.all()
+    recherche = request.GET.get('recherche')
+
     if category:
         category = get_object_or_404(Categorie, slug=category)
         blogs = blogs.filter(categgorie=category)
-    context = {'blogs': blogs, 'categories': categories}
+    if recherche != '' and recherche is not None:
+        blogs = Blog.objects.filter(title__icontains=recherche)
+        categories = Categorie.objects.filter(libelle__icontains=recherche)
+    #pagination 
+    paginer_blog = Paginator(blogs, 4)
+    page_number = request.GET.get('page')
+    blogs = paginer_blog.get_page(page_number)
+    new_prods = Produit.objects.all()[:3]
+    context = {'blogs': blogs, 'categories': categories, 'category': category, 'new_prods': new_prods}
     return render(request, "blog/blog.html", context)
+
+
 
 def blog_detail_view(request, slug : str, category=None):
     blog = Blog.objects.get(slug=slug)
     categories = Categorie.objects.all()
+    recherche = request.GET.get('recherche')
     if category:
         category = get_object_or_404(Categorie, slug=category)
-        blog = blog.filter(category=category)
-
-    context = {'blog': blog, 'categories': categories}
+        blog = Blog.objects.filter(category=category)
+    if recherche != "" and recherche is not None:
+        blog = Blog.objects.filter(title__icontains=recherche)
+        categories = Categorie.objects.filter(libelle__icontains=recherche)
+    new_prods = Produit.objects.all()[:3]
+    context = {'blog': blog, 'categories': categories, 'category': category, 'new_prods': new_prods}
     return render(request, "blog/blog-details.html", context)

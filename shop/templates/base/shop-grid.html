@@ -187,7 +187,7 @@
                     </div>
                     <div class="product__pagination text-center">
                         {% if produits.has_previous %}
-                            <a href="?page{{ produit.previous_page_numbre }}" class="w-auto p-1">Precedante</a>
+                            <a href="?page={{ produit.previous_page_number}}" class="w-auto p-1">Precedante</a>
                         {% endif %}
                         {% if produits.has_next %}                      
                         <a href="?page={{ produits.next_page_number }}" class="w-auto p-1">Suivante</a>
